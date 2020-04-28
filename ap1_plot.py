@@ -86,14 +86,14 @@ def plot_expression( exp_data, genes, result_file, day_lengths ):
 			mean_values_to_plot.append( np.mean( exp_data[ gene ][ date ] ) )
 			ax.plot( [ ticks[ idx ], ticks[ idx ] ], [ min( exp_data[ gene ][ date ] ), max( exp_data[ gene ][ date ] ) ], color="grey", linewidth=1 )
 			all_values.append( max( exp_data[ gene ][ date ] ) )
-		ax.plot( ticks, mean_values_to_plot, "--o", color="lime", linewidth=1 )
+		ax.plot( ticks, mean_values_to_plot, "--o", color="blue", linewidth=1 )
 	
 	# --- add day lengths --- #
 	ax2 = ax.twinx()
 	ax2.plot( range( 156 ), day_lengths, color="black" )
 	
 	# --- add legend --- #
-	handles = [ mpatches.Patch( color='lime', label='AP1 expression' ),mpatches.Patch( color='black', label='day length' ) ]
+	handles = [ mpatches.Patch( color='blue', label='AP1 expression' ),mpatches.Patch( color='black', label='day length' ) ]
 	ax.legend( handles=handles )
 	
 	# --- adjust figure properties to make it pretty --- #
