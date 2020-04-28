@@ -6,6 +6,7 @@ __usage__ = """ 	python plot_triplicates_one_y_axis.py
 							--exp_file <INPUT_TPMS_FILE>
 							--genes_file <GENE_IDS_OF_GENES_TO_SHOW_IN_PLOT,ONE_GENE_ID_PER_LINE>
 							--out <OUTPUT_DIRECTORY>
+							--days <FILE_WITH_DAY_LENGTHS>
 						"""
 
 import matplotlib.pyplot as plt
@@ -51,15 +52,31 @@ def load_genes( genes_file ):
 	return genes
 
 
-def plot_expression( exp_data, genes, result_file ):
+def load_day_lengths( day_len_file ):
+	"""! @brief load day lenths per day """
+	
+	day_lengths = []
+	with open( day_len_file, "r" ) as f:
+		line = f.readline()
+		while line:
+			parts = line.strip().split('\t')
+			day_lengths.append( int( parts[1] ) / 60.0 )	#convert minutes to hours
+			line = f.readline()
+	
+	return day_lengths
+
+
+def plot_expression( exp_data, genes, result_file, day_lengths ):
 	"""! @brief creates expression plot and adjusts settings """
 	
 	dates_order = ["010616", "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
-	labels = ["01 Jun", "02 Jun", "04 Jun", "06 Jun", "09 Jun", "12 Jun", "14 Jun", "16 Jun", "18 Jun", "21 Jun", "24 Jun", "28 Jun", "26 Jul", "04 Aug", "11 Aug", "23 Aug", "08 Sep", "22 Sep", "03 Nov"]
-		
+	labels = ["01 Jun", "", "04 Jun", "06 Jun", "09 Jun", "12 Jun", "14 Jun", "16 Jun", "18 Jun", "21 Jun", "24 Jun", "28 Jun", "26 Jul", "04 Aug", "11 Aug", "23 Aug", "08 Sep", "22 Sep", "03 Nov"]
+	#02 Jun label removed to allow better display
+	
 	fig, ax  = plt.subplots( figsize = (10, 5) )
 	
-	ticks = [ 0, 1, 3, 5, 8, 11, 13, 15, 17, 20, 23, 27, 55, 64, 71, 83, 99, 113, 156 ]
+	ticks = [ 0, 1, 3, 5, 8, 11, 13, 15, 17, 20, 23, 27, 55, 64, 71, 83, 99, 113, 155 ]
+	
 	
 	# --- add gene expression --- #
 	all_values = []
@@ -71,23 +88,28 @@ def plot_expression( exp_data, genes, result_file ):
 			all_values.append( max( exp_data[ gene ][ date ] ) )
 		ax.plot( ticks, mean_values_to_plot, "--o", color="lime", linewidth=1 )
 	
+	# --- add day lengths --- #
+	ax2 = ax.twinx()
+	ax2.plot( range( 156 ), day_lengths, color="black" )
+	
 	# --- add legend --- #
-	green_patch = mpatches.Patch( color='lime', label='AP1 expression' ) 
-	ax.legend( handles=[ green_patch ] )
+	handles = [ mpatches.Patch( color='lime', label='AP1 expression' ),mpatches.Patch( color='black', label='day length' ) ]
+	ax.legend( handles=handles )
 	
 	# --- adjust figure properties to make it pretty --- #
 	ax.set_xticks(ticks)
 	ax.set_xticklabels(labels, {'rotation': 90, 'fontsize': 8})
 	ax.set_xlabel("Days")
 	ax.set_ylabel("gene expression [Tags Per Million assigned tags]")
+	ax2.set_ylabel( "day length [h]" )
 	
-	ax.set_xlim( -0.5, 156.5 )
+	ax.set_xlim( -0.5, 155.5 )
 	ax.set_ylim( 0, max( all_values ) )
 	
 	ax.spines['top'].set_visible(False)
 	ax.spines['right'].set_visible(False)
 	
-	fig.subplots_adjust( left=0.0675, right=0.999, top=0.999, bottom=0.15 ) 
+	fig.subplots_adjust( left=0.0675, right=0.95, top=0.999, bottom=0.15 ) 
 	fig.savefig( result_file, dpi = 600 )
 	plt.close( "all" )
 
@@ -97,6 +119,8 @@ def main(arguments):
 	exp_file = arguments[arguments.index("--exp_file" ) + 1]
 	genes_file = arguments[arguments.index("--genes_file" ) + 1]
 	directory = arguments[arguments.index("--out" ) + 1]
+	day_len_file = arguments[arguments.index("--days" ) + 1]
+	
 	if directory[-1] != "/":
 		directory += "/"
 	if not os.path.exists( directory ):
@@ -107,15 +131,16 @@ def main(arguments):
 	result_file = directory + "AP1_expression.jpg"
 	
 	exp_data = load_expression( exp_file )
+	day_lengths = load_day_lengths( day_len_file )
 	
 	# --- analysing candidate genes --- #
 	genes = load_genes( genes_file )
 	print str( len( genes) ) + " genes subjected to analysis"
-	plot_expression( exp_data, genes, result_file )
+	plot_expression( exp_data, genes, result_file, day_lengths )
 	
 
 if __name__ == "__main__":
-	if "--exp_file" in sys.argv and "--genes_file" in sys.argv and '--out' in sys.argv:
+	if "--exp_file" in sys.argv and "--genes_file" in sys.argv and '--out' in sys.argv and '--days':
 		main(sys.argv)
 	else:
 		sys.exit(__usage__)
