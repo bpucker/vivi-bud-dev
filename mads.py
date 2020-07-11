@@ -66,7 +66,7 @@ def construct_heatmap( datamatrix, genes, tissues, heatmap_file ):
 		ax.text( -3.7, idx+0.6, gene, fontsize=4 )
 	
 	for idx, tissue in enumerate( tissues ):
-		ax.text( idx+0.4, len( genes )+0.5, "20"+tissue[-2:] + "-" + tissue[2:4] + "-" + tissue[:2], rotation=90, fontsize=4 )	#NEW
+		ax.text( idx+0.4, len( genes )+0.5, "20"+tissue[-2:] + "-" + tissue[2:4] + "-" + tissue[:2], rotation=90, fontsize=4 )
 	
 	ax.set_yticklabels( [], rotation=0, fontsize=2 )
 	ax.set_xticklabels( [] , rotation=90, fontsize=3  )
@@ -95,7 +95,7 @@ def filter_genes( exp_data, genes, exp_cutoff ):
 	return final_genes
 
 
-def load_mapping_table( filename ):	#NEW
+def load_mapping_table( filename ):
 	"""! @brief load mapping table from given file """
 	
 	mapping_table = {}
@@ -111,31 +111,35 @@ def load_mapping_table( filename ):	#NEW
 if __name__ == '__main__':
 	
 	data_file ="FPKMs.txt"
-	prefix = "MADS/"
+	prefix = "./MADS/"
 	candidate_gene_file = "MADS.txt"
-	name_file = "names.txt"	#NEW
+	name_file = "names.txt"
 	
 	candidate_samples = ["010616", "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
 	
 	exp_cutoff = 1
 	
-	NMT = load_mapping_table( name_file )	#NEW
+	NMT = load_mapping_table( name_file )
+	
 	
 	candidate_name_mapping_table = {}
 	with open( candidate_gene_file, "r" ) as f:
 		content = f.read()
 		genes = list( set( re.findall( "VIT_2\d+s\d+g\d+", content ) ) )
 		for gene in genes:
-			try:	#NEW
-				candidate_name_mapping_table.update( { gene: gene + "-" + NMT[ gene ] } )	#NEW
-			except KeyError:	#NEW
+			try:
+				candidate_name_mapping_table.update( { gene: gene + "-" + NMT[ gene ] } )
+			except KeyError:
 				print "ERROR: no name mapped - " + gene
-				candidate_name_mapping_table.update( { gene: gene } )	#NEW
+				candidate_name_mapping_table.update( { gene: gene } )
 	candidate_genes = sorted( candidate_name_mapping_table.keys() )
 	
 	# --- load data --- #
 	expression_data = load_expression( data_file )	
 	candidate_genes = filter_genes( expression_data, candidate_genes, exp_cutoff )	#just order by gene ID
+	
+	#list of dictionaries is required for the next step
+	#each dictionary needs an ID (tissue) and values (gene expression values)
 	
 	# --- adjust format for heatmap construction --- #
 	genes, tissues, datamatrix = construct_data_output_file( expression_data, candidate_genes, candidate_name_mapping_table, candidate_samples )

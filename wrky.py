@@ -1,7 +1,3 @@
-### Boas Pucker ###
-### bpucker@cebitec.uni-bielefeld.de ###
-### v0.1 ###
-
 import re, sys, os
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -95,7 +91,7 @@ def filter_genes( exp_data, genes, exp_cutoff ):
 	return final_genes
 
 
-def load_mapping_table( filename ):	#NEW
+def load_mapping_table( filename ):
 	"""! @brief load mapping table from given file """
 	
 	mapping_table = {}
@@ -108,34 +104,35 @@ def load_mapping_table( filename ):	#NEW
 	return mapping_table
 
 
-
 if __name__ == '__main__':
 	
 	data_file ="FPKMs.txt"
-	prefix = "WRKY/"
-	candidate_gene_file = "WRKY.txt"
-	name_file = "names.txt"	#NEW
+	prefix = "./WRKY/"
+	candidate_gene_file = "wrky.txt"
+	name_file = "names.txt"
 	
 	candidate_samples = ["010616", "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
 	
 	exp_cutoff = 1
-	NMT = load_mapping_table( name_file )	#NEW
+	NMT = load_mapping_table( name_file )
 	
 	candidate_name_mapping_table = {}
 	with open( candidate_gene_file, "r" ) as f:
 		content = f.read()
-		genes = list( set( re.findall( "VIT_2\d+s\d+g\d+", content ) ) )
+		genes = re.findall( "VIT_2\d+s\d+g\d+", content )
 		for gene in genes:
-			try:	#NEW
-				candidate_name_mapping_table.update( { gene: gene + "-" + NMT[ gene ] } )	#NEW
-			except KeyError:	#NEW
+			try:
+				candidate_name_mapping_table.update( { gene: gene + "-" + NMT[ gene ] } )
+			except KeyError:
 				print "ERROR: no name mapped - " + gene
-				candidate_name_mapping_table.update( { gene: gene } )	#NEW
-	candidate_genes = sorted( candidate_name_mapping_table.keys() )
+				candidate_name_mapping_table.update( { gene: gene } )
 	
 	# --- load data --- #
 	expression_data = load_expression( data_file )	
-	candidate_genes = filter_genes( expression_data, candidate_genes, exp_cutoff )	#just order by gene ID
+	candidate_genes = filter_genes( expression_data, genes, exp_cutoff )	#just order by gene ID
+	
+	#list of dictionaries is required for the next step
+	#each dictionary needs an ID (tissue) and values (gene expression values)
 	
 	# --- adjust format for heatmap construction --- #
 	genes, tissues, datamatrix = construct_data_output_file( expression_data, candidate_genes, candidate_name_mapping_table, candidate_samples )
