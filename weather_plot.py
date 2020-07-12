@@ -1,8 +1,8 @@
 ### Sarah Becker and Boas Pucker ###
 ### bpucker@cebitec.uni-bielefeld.de ###
-### v0.2 ###
+### v0.21 ###
 
-__usage__ = """ 	python plot_triplicates_one_y_axis.py
+__usage__ = """ 	python weather_plot.py
 							--exp_file <INPUT_TPMS_FILE>
 							--genes_file <GENE_IDS_OF_GENES_TO_SHOW_IN_PLOT,ONE_GENE_ID_PER_LINE>
 							--out <OUTPUT_DIRECTORY>
@@ -75,7 +75,7 @@ def analyze_correlation( exp_data, genes, cor_file ):
 				merged_exp_data[ key ] += exp[ key ]
 			except KeyError:
 				merged_exp_data.update( { key: exp[ key ] } )
-		
+	
 	# --- check correlation --- #
 	dates_order = [ "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
 	ticks = [ 1, 3, 5, 8, 11, 13, 15, 17, 20, 23, 27, 55, 64, 71, 83, 99, 113, 156 ]
@@ -163,7 +163,7 @@ def plot_merged_expression( exp_data, genes, merged_result_file  ):
 	ax.set_xticks(ticks)
 	ax.set_xticklabels(labels, {'rotation': 90, 'fontsize': 8})
 	ax.set_xlabel("Days")
-	ax.set_ylabel("gene expression [Tags Per Million assigned tags]")
+	ax.set_ylabel("transcript level [Counts Per Million]")
 	ax2.set_ylabel( "temperature [C]" )
 	
 	ax.set_xlim( -0.5, 155.5 )
