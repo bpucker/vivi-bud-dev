@@ -1,6 +1,6 @@
 ### Sarah Becker and Boas Pucker ###
 ### bpucker@cebitec.uni-bielefeld.de ###
-### v0.21 ###
+### v0.25 ###
 
 __usage__ = """ 	python weather_plot.py
 							--exp_file <INPUT_TPMS_FILE>
@@ -95,6 +95,8 @@ def analyze_correlation( exp_data, genes, cor_file ):
 	print stats.pearsonr( x_values, y_values )
 	print stats.spearmanr( x_values, y_values )
 	
+	#correlation is substantially higher (factor 2) for the densely sampled time points
+	
 	
 	fig, ax = plt.subplots()
 	ax.scatter( x_values, y_values, s=10, color="lime" )
@@ -124,7 +126,7 @@ def plot_merged_expression( exp_data, genes, merged_result_file  ):
 				merged_exp_data.update( { key: exp[ key ] } )
 	
 	print "number of genes in plot: " + str( counter )
-	print sorted( list( set( surviving_genes ) ) )
+	#print sorted( list( set( surviving_genes ) ) )
 	
 	# --- fixed data --- #
 	dates_order = ["010616", "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
@@ -164,7 +166,7 @@ def plot_merged_expression( exp_data, genes, merged_result_file  ):
 	ax.set_xticklabels(labels, {'rotation': 90, 'fontsize': 8})
 	ax.set_xlabel("Days")
 	ax.set_ylabel("transcript level [Counts Per Million]")
-	ax2.set_ylabel( "temperature [C]" )
+	ax2.set_ylabel( "temperature [$^\circ$C]" )
 	
 	ax.set_xlim( -0.5, 155.5 )
 	ax.set_ylim( 0, max( y_values )+10 )	#all_values
@@ -196,13 +198,10 @@ def main(arguments):
 	if not os.path.exists( directory ):
 		os.makedirs( directory )
 	
-	result_file = directory + "expression_plot.png"
+	merged_result_file = directory + "Fig3.png"
 	cor_file = directory + "correlation.png"
-	merged_result_file = directory + "merged_expression.png"
-	boxplot_result_file = directory + "merged_expression_boxplot.png"
-	
-	result_file_control = directory + "expression_plot_control.png"
-	cor_file_control = directory + "correlation_control.png"
+	#result_file_control = directory + "expression_plot_control.png"
+	#cor_file_control = directory + "correlation_control.png"
 	
 	exp_data = load_expression( exp_file )
 	
