@@ -1,6 +1,6 @@
 ### Sarah Becker and Boas Pucker ###
 ### bpucker@cebitec.uni-bielefeld.de ###
-### v0.25 ###
+### v0.26 ###
 
 __usage__ = """ 	python weather_plot.py
 							--exp_file <INPUT_TPMS_FILE>
@@ -69,15 +69,30 @@ def analyze_correlation( exp_data, genes, cor_file ):
 	# --- merge expression data by timepoint --- #
 	merged_exp_data = {}
 	for gene in genes:
-		exp = exp_data[ gene ]
+		exp = exp_data[ gene ]	#data per gene
 		for key in exp.keys():
 			try:
-				merged_exp_data[ key ] += exp[ key ]
+				for i in range( 3 ):
+					merged_exp_data[ key ]['1'].append( exp[ key ][0] )
+					try:
+						merged_exp_data[ key ]['2'].append( exp[ key ][1] )
+					except IndexError:
+						pass
+					try:
+						merged_exp_data[ key ]['3'].append( exp[ key ][2] )
+					except IndexError:
+						pass
 			except KeyError:
-				merged_exp_data.update( { key: exp[ key ] } )
+				try:
+					merged_exp_data.update( { key: { '1': [ exp[ key ][0] ], '2': [ exp[ key ][1] ], '3': [ exp[ key ][2] ] } } )
+				except IndexError:
+					try:
+						merged_exp_data.update( { key: { '1': [ exp[ key ][0] ], '2': [ exp[ key ][1] ] } } )
+					except IndexError:
+						merged_exp_data.update( { key: { '1': [ exp[ key ][0] ] } } )
 	
 	# --- check correlation --- #
-	dates_order = [ "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116"]
+	dates_order = [ "020616", "040616", "060616", "090616", "120616", "140616", "160616", "180616", "210616", "240616", "280616", "260716", "040816", "110816", "230816", "080916", "220916", "031116" ]
 	ticks = [ 1, 3, 5, 8, 11, 13, 15, 17, 20, 23, 27, 55, 64, 71, 83, 99, 113, 156 ]
 	temp_data=[16.19,16.46,17.5,18.74,20.47,20.43,16.98,17.32,17.23,16.59,16.7,16.08,14.98,14.25,14.19,14.04,14.53,14.4,16.01,17.48,21.38, 25.3,25.71,19.31,16.86,16.34,17.73,19.35,19.01,19.96,16.8,14.87,18.2,19.05,17.08,18.8,20.93,21.93,23.65,21.89,19.16,16.28,15,15.26,17.7, 21.02,22.35,23.1,25.08,21.24,21.6,20.64,21.54,22.95,21.78,21.36,20.4,21.03,21,20.28,18.22,17.7,21.06,18.73,18.11,18.56,19.51,20.05,17.78, 14.22,14.08,17.37,20.75,21.13,21.4,19.93,19.98,17.98,19.49,16.29,16.15,15.97,19.75,23.49,23.84,24.65,24.93,25.25,21.68,20.1,20.99,21.17,
 	19.65,20.56,17.79,18.15,17.91,19.64,20.43,20.54,21.41,21.74,21.68,22.46,23.43,20.86,15.59,16.23,16.27,15.49,14.26,13.07,12.71,14.54,14.7,
@@ -89,8 +104,9 @@ def analyze_correlation( exp_data, genes, cor_file ):
 	x_values = []	#temperature
 	y_values = []	#gene expression
 	for idx, date in enumerate( dates_order[1:] ):
-		y_values.append( np.mean( merged_exp_data[ date ] ) )
-		x_values.append( temp_data[ ticks[ idx ] ] )
+		for y in merged_exp_data[ date ].keys():
+			y_values.append( np.mean( merged_exp_data[ date ][ y ] ) )
+			x_values.append( temp_data[ ticks[ idx ] ] )
 	
 	print stats.pearsonr( x_values, y_values )
 	print stats.spearmanr( x_values, y_values )
