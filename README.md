@@ -24,6 +24,11 @@ weather_plot.py
 
 Generates a gene expression plot for potential heatshock genes to show the correlation with the temperature profile.
 
+per_gene_inspection.py
+
+Runs a correlation analysis for each HSP gene individually resulting in a summary table and individual figures.
+
+
 ## Heatmap generation
 
 mads.py
