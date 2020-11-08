@@ -105,14 +105,11 @@ def analyze_correlation( exp_data, genes, cor_file ):
 	y_values = []	#gene expression
 	for idx, date in enumerate( dates_order[1:] ):
 		for y in merged_exp_data[ date ].keys():
-			y_values.append( np.mean( merged_exp_data[ date ][ y ] ) )
+			y_values.append( np.median( merged_exp_data[ date ][ y ] ) )
 			x_values.append( temp_data[ ticks[ idx ] ] )
 	
-	print stats.pearsonr( x_values, y_values )
+	#print stats.pearsonr( x_values, y_values )	#not robust enough?
 	print stats.spearmanr( x_values, y_values )
-	
-	#correlation is substantially higher (factor 2) for the densely sampled time points
-	
 	
 	fig, ax = plt.subplots()
 	ax.scatter( x_values, y_values, s=10, color="lime" )
@@ -167,7 +164,7 @@ def plot_merged_expression( exp_data, genes, merged_result_file  ):
 	y_values = []	#gene expression
 	y_dev_values = []	#standard deviation
 	for idx, date in enumerate( dates_order ):
-		y_values.append( np.mean( merged_exp_data[ date ] ) )
+		y_values.append( np.median( merged_exp_data[ date ] ) )
 		x_values.append( dates_order.index( date ) )
 	
 	ax.plot( ticks, y_values, "--o", color="blue", linewidth=1 )
